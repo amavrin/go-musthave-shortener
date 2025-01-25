@@ -7,77 +7,34 @@ import (
 )
 
 func TestDB_SaveURL(t *testing.T) {
-	type args struct {
-		longURL  string
-		shortURL string
-	}
+
 	tests := []struct {
-		name    string
-		args    args
-		errFunc func(t assert.TestingT, err error, i ...interface{}) bool
+		name string
+		URL  string
 	}{
 		{
 			name: "SaveURL",
-			args: args{
-				longURL:  "http://example.com",
-				shortURL: "abc001",
-			},
-			errFunc: assert.NoError,
+			URL:  "http://example.com",
 		},
 		{
-			name: "DuplicatedShort",
-			args: args{
-				longURL:  "http://example.com",
-				shortURL: "abc001",
-			},
-			errFunc: assert.Error,
+			name: "SaveURL2",
+			URL:  "http://example2.com",
 		},
 		{
-			name: "DuplicatedLongShortNotDuplicated",
-			args: args{
-				longURL:  "http://example.com",
-				shortURL: "abc002",
-			},
-			errFunc: assert.NoError,
+			name: "SaveURL3",
+			URL:  "http://example3.com",
 		},
 	}
 	db := NewDB()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := db.SaveURL(tt.args.longURL, tt.args.shortURL)
-			tt.errFunc(t, err)
-		})
-	}
-}
-
-func TestDB_GetLongURL(t *testing.T) {
-	type args struct {
-		longURL  string
-		shortURL string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		errFunc func(t assert.TestingT, err error, i ...interface{}) bool
-	}{
-		{
-			name: "URL",
-			args: args{
-				longURL:  "http://example.com",
-				shortURL: "abc001",
-			},
-			errFunc: assert.NoError,
-		},
-	}
-	db := NewDB()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := db.SaveURL(tt.args.longURL, tt.args.shortURL)
-			tt.errFunc(t, err)
-			got, err := db.GetLongURL(tt.args.shortURL)
-			tt.errFunc(t, err)
-			assert.Equal(t, tt.args.longURL, got, "GetLongURL() = %v, want %v", got, tt.args.longURL)
+			short, err := db.SaveURL(tt.URL)
+			assert.NoError(t, err, "SaveURL() error = %v", err)
+			assert.Equal(t, len(short), randomLeng, "shortened url is not the right len")
+			original, err := db.GetURL(short)
+			assert.NoError(t, err, "GetURL() error = %v", err)
+			assert.Equal(t, original, tt.URL, "GetURL() = %v, want %v", original, tt.URL)
 		})
 	}
 }
