@@ -20,26 +20,20 @@ var (
 	ErrURLDoesNotExist = errors.New("short URL does not exist")
 )
 
-const distinctChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
 func NewDB() *DB {
 	return &DB{URLs: make(map[string]string)}
-}
-
-func encodeOne(b byte) byte {
-	return distinctChars[b%byte(len(distinctChars))]
 }
 
 func makeID(leng int) string {
 	once.Do(func() {
 		rand.Seed(uint64(time.Now().UnixNano()))
 	})
-	buf := make([]byte, leng)
-	rand.Read(buf)
-	for i := range buf {
-		buf[i] = encodeOne(buf[i])
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	result := make([]byte, leng)
+	for i := range result {
+		result[i] = charset[rand.Intn(len(charset))] // Выбор случайного символа из charset
 	}
-	return string(buf)
+	return string(result)
 }
 
 func (db *DB) SaveURL(URL string) (string, error) {
