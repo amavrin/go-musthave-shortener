@@ -26,6 +26,12 @@ func NewApp(port int, address string) *App {
 	return &App{port, address, db}
 }
 
+func formShortResp(r *http.Request, shortURL string) string {
+	scheme := "http"
+	host := r.Host
+	return fmt.Sprintf("%s://%s/%s", scheme, host, shortURL)
+}
+
 func (a *App) saveURL(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	URL, err := io.ReadAll(r.Body)
@@ -39,7 +45,8 @@ func (a *App) saveURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(shortURL))
+	response := formShortResp(r, shortURL)
+	w.Write([]byte(response))
 }
 
 func (a *App) getURL(w http.ResponseWriter, r *http.Request) {
@@ -54,12 +61,10 @@ func (a *App) getURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) Run() error {
-	log.Print("here**************")
-
 	r := chi.NewRouter()
-	r.Post("/", a.saveURL)
+	log.Printf("Starting server on %s:%d", a.address, a.port)
 	r.Get("/{shortURL}", a.getURL)
+	r.Post("/", a.saveURL)
 	address := fmt.Sprintf("%s:%d", a.address, a.port)
-	http.ListenAndServe(address, r)
-	return nil
+	return http.ListenAndServe(address, r)
 }
