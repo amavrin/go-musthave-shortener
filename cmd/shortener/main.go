@@ -12,17 +12,18 @@ type Config struct {
 	Address string
 }
 
-func run(port int, address string) error {
-	a := app.NewApp(port, address)
+func run(c Config) error {
+	a := app.NewApp(c.Port, c.Address)
 	return a.Run()
 }
 
 func main() {
-	port := flag.Int("port", app.DefaultPort, "port to listen on")
-	address := flag.String("address", app.DefaultAddress, "address to listen on")
+	config := Config{}
+	config.Port = *flag.Int("port", app.DefaultPort, "port to listen on")
+	config.Address = *flag.String("address", app.DefaultAddress, "address to listen on")
 	flag.Parse()
-	err := run(*port, *address)
+	err := run(config)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed to run server: %w", err)
 	}
 }
