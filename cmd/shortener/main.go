@@ -18,12 +18,12 @@ func run(c Config) error {
 }
 
 func main() {
+	flag.Parse()
 	config := Config{}
 	config.Port = *flag.Int("port", app.DefaultPort, "port to listen on")
 	config.Address = *flag.String("address", app.DefaultAddress, "address to listen on")
-	flag.Parse()
 	err := run(config)
 	if err != nil {
-		log.Fatal("failed to run server: %w", err)
+		log.Fatal("failed to run server:", err)
 	}
 }

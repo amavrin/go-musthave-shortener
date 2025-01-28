@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/amavrin/go-musthave-shortener/internal/database"
@@ -29,6 +30,9 @@ func NewApp(port int, address string) *App {
 
 func formShortResp(r *http.Request, shortURL string) string {
 	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
 	host := r.Host
 	return fmt.Sprintf("%s://%s/%s", scheme, host, shortURL)
 }
@@ -38,6 +42,13 @@ func isValidURL(URL string) bool {
 		return false
 	}
 	if !strings.HasPrefix(URL, "http://") && !strings.HasPrefix(URL, "https://") {
+		return false
+	}
+	parsedURL, err := url.ParseRequestURI(URL)
+	if err != nil {
+		return false
+	}
+	if parsedURL.Host == "" {
 		return false
 	}
 	return true

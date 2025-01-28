@@ -30,7 +30,7 @@ func Test_isValidURL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := isValidURL(tt.args.URL); got != tt.want {
-				t.Errorf("isValidURL() = %v, want %v", got, tt.want)
+				t.Errorf("isValidURL(%s) = %v, want %v", tt.args.URL, got, tt.want)
 			}
 		})
 	}
